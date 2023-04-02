@@ -77,8 +77,34 @@ public class TransaccionRepository implements Repositorio {
 
     @Override
     public List<Transacciones> listar() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'listar'");
+        List<Transacciones> transacciones = new ArrayList<Transacciones>();
+
+        try (Connection conexion = DriverManager.getConnection(cadenaConexion)) {
+            String sentenciaSql = "SELECT * FROM TRANSACCIONES";
+            PreparedStatement sentencia = conexion.prepareStatement(sentenciaSql);
+            ResultSet resultadoConsulta = sentencia.executeQuery();
+
+            if (resultadoConsulta != null) {
+                while (resultadoConsulta.next()) {
+                    Transacciones transaccion = null;
+                    String fecha = resultadoConsulta.getString("FECHA");
+                    String hora = resultadoConsulta.getString("HORA");
+                    String tipo_transaccion = resultadoConsulta.getString("TIPO_TRANSACCION");
+                    double monto = resultadoConsulta.getDouble("MONTO");
+                    int id_cuenta = resultadoConsulta.getInt("ID_CUENTA");
+                    String tipo_cuenta_destino = resultadoConsulta.getString("TIPO_CUENTA_DESTINO");
+                    int transaccion_id = resultadoConsulta.getInt("ID");
+
+                    transaccion = new Transacciones(fecha, hora, tipo_transaccion, monto, id_cuenta,
+                            tipo_cuenta_destino, transaccion_id);
+                    transacciones.add(transaccion);
+                }
+                return transacciones;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error de conexión: " + e);
+        }
+        return null;
     }
 
     @Override
